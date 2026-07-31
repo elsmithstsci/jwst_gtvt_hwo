@@ -1,0 +1,9 @@
+{
+    "minSunPitch" : 0.785398,
+    "maxSunPitch" : 2.35619,
+    "maxSunRoll" : 0.3926991,
+    "sunPitchPad" : 0.008727,
+    "sunRollPad" : 0.00174533,
+    "launchDate" : "2021-12-26",
+    "url" : "https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&COMMAND=-170&OBJ_DATA=%27NO%27&EPHEM_TYPE=VECTORS&START_TIME=%27{}%27&STOP_TIME=%27{}%27&CENTER=%27500@10%27&STEP_SIZE=%271%20DAYS%27&CSV_FORMAT=%27YES%27&VEC_TABLE=%272%27&REF_SYSTEM=%27ICRF%27&REF_PLANE=%27FRAME%27&VEC_CORR=%27LT%27&OUT_UNITS=%27KM-S%27&VEC_LABELS=%27YES%27&VEC_DELTA_T=%27NO%27"
+}

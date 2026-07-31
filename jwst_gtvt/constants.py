@@ -1,12 +1,56 @@
 import numpy as np
+import os
+import json
+import glob
 
-D2R = np.pi/180.  # degrees to radians
+D2R = np.pi/180.0  # degrees to radians
 EPSIOLON = 23.43929 * D2R  # obliquity of the ecliptic J2000
-MIN_SUN_ANGLE = 84.8 * D2R  # minimum Sun angle, in radians
-MAX_SUN_ANGLE = 135.0 * D2R  # maximum Sun angle, in radians
 OBLIQUITY_OF_THE_ECLIPTIC = -23.439291 * D2R  # At J2000 equinox
-PI2 = 2. * np.pi # 2 pi
-R2D = 180. / np.pi  # radians to degrees 
-SUN_ANGLE_PAD = 0.5 * D2R  # pad away from Sun angle limits when constructing safe attitude
-UNIT_LIMIT = lambda x: min(max(-1.,x),1.)  # forces value to be in [-1,1]
-URL = 'https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&COMMAND=-170&OBJ_DATA=%27NO%27&EPHEM_TYPE=VECTORS&START_TIME=%27{}%27&STOP_TIME=%27{}%27&CENTER=%27500@10%27&STEP_SIZE=%271%20DAYS%27&CSV_FORMAT=%27YES%27&VEC_TABLE=%272%27&REF_SYSTEM=%27ICRF%27&REF_PLANE=%27FRAME%27&VEC_CORR=%27LT%27&OUT_UNITS=%27KM-S%27&VEC_LABELS=%27YES%27&VEC_DELTA_T=%27NO%27'
+PI2 = 2.0 * np.pi # 2 pi
+R2D = 180.0 / np.pi  # radians to degrees 
+UNIT_LIMIT = lambda x: min(max(-1.0,x),1.0)  # forces value to be in [-1,1]
+
+# HWOE-266 7/26 EJAS: The rest of this code parameterizes spacecraft-dependent constants.
+
+# Cache to store parameters dict.
+saved_parameters = False
+
+def get_parameters_json():
+    global saved_parameters
+
+    if saved_parameters:
+        return saved_parameters
+
+    filename_pattern = "*parameters*.json"
+    path_pattern = os.path.join(os.path.dirname(__file__), "data", filename_pattern)
+    path = glob.glob(path_pattern)[0]
+    
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"Could not find parameters JSON file at {str(path)}")
+
+    with open(path, "r") as file:
+        saved_parameters = json.load(file)
+    
+    return saved_parameters
+
+def get_min_sun_pitch():
+    return get_parameters_json()["minSunPitch"]
+
+def get_max_sun_pitch():
+    return get_parameters_json()["maxSunPitch"]
+
+def get_max_sun_roll():
+    return get_parameters_json()["maxSunRoll"]
+
+# Not used
+def get_sun_pitch_pad():
+    return get_parameters_json()["sunPitchPad"]
+
+def get_sun_roll_pad():
+    return get_parameters_json()["sunRollPad"]
+
+def get_url():
+    return get_parameters_json()["url"]
+
+def get_launch_date():
+    return get_parameters_json()["launchDate"]

@@ -21,6 +21,8 @@ Use
         >>> eph = Ephemeris()
 """
 
+from jwst_gtvt.constants import UNIT_LIMIT, D2R, R2D, get_min_sun_pitch, get_max_sun_pitch, get_max_sun_roll, get_sun_roll_pad, get_url, get_launch_date
+
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
 import astropy.units as u
@@ -38,21 +40,23 @@ import warnings
 
 warnings.filterwarnings('ignore', category=ErfaWarning)
 
-from jwst_gtvt.constants import UNIT_LIMIT, URL
+# HWOE-266 7/26 EJAS: Commented out
+# D2R = np.pi / 180.0  # degrees to radians
+# R2D = 180.0 / np.pi  # radians to degrees
+# unit_limit = lambda x: min(max(-1.0, x), 1.0)  # forces value to be in [-1,1]
 
-D2R = np.pi / 180.0  # degrees to radians
-R2D = 180.0 / np.pi  # radians to degrees
-unit_limit = lambda x: min(max(-1.0, x), 1.0)  # forces value to be in [-1,1]
-LAUNCH_DATE = "2021-12-26"
-MIN_SUN_ANGLE = 84.8 * D2R  # minimum Sun angle, in radians
-MAX_SUN_ANGLE = 135.0 * D2R  # maximum Sun angle, in radians
-SUN_ANGLE_PAD = (
-    0.5 * D2R
-)  # pad away from Sun angle limits when constructing safe attitude
+# LAUNCH_DATE = "2021-12-26"
+# MIN_SUN_ANGLE = 84.8 * D2R  # minimum Sun angle, in radians
+# MAX_SUN_ANGLE = 135.0 * D2R  # maximum Sun angle, in radians
 
-obliquity_of_the_ecliptic = -23.439291  # At J2000 equinox
-obliquity_of_the_ecliptic *= D2R
-# Qecl2eci = QX(obliquity_of_the_ecliptic)
+
+# SUN_ANGLE_PAD = (
+#     0.5 * D2R
+# )  # pad away from Sun angle limits when constructing safe attitude
+
+# obliquity_of_the_ecliptic = -23.439291  # At J2000 equinox
+# obliquity_of_the_ecliptic *= D2R
+# # Qecl2eci = QX(obliquity_of_the_ecliptic)
 
 NOW = Time.now()
 
@@ -77,13 +81,13 @@ class Ephemeris:
         # IF there are changes to HORIZONS ephemerides structure, this code could potentially fail.
         self.max_date = self.ephemeris_maximum_date()
 
-        if start_date < Time(LAUNCH_DATE) or end_date > Time(self.max_date):
+        if start_date < Time(get_launch_date()) or end_date > Time(self.max_date):
             date_out_of_bound_msg = (
                 "Time frame selected {} ----> {} is out of bounds!".format(
                     start_date, end_date
                 ),
                 "Please select dates between {} ----> {}".format(
-                    LAUNCH_DATE, self.max_date
+                    get_launch_date(), self.max_date
                 ),
             )
             raise SystemExit(date_out_of_bound_msg)
@@ -183,16 +187,19 @@ class Ephemeris:
 
     def allowed_max_sun_roll(self, sun_p):
         """Need Docstring"""
-        abs_max_sun_roll = 5.2 * D2R
+        # abs_max_sun_roll = 5.2 * D2R
 
-        if sun_p > 2.5 * D2R:
-            max_sun_roll = (
-                abs_max_sun_roll - 1.7 * D2R * (sun_p - 2.5 * D2R) / (5.2 - 2.5) / D2R
-            )
-        else:
-            max_sun_roll = abs_max_sun_roll
+        # if sun_p > 2.5 * D2R:
+        #     max_sun_roll = (
+        #         abs_max_sun_roll - 1.7 * D2R * (sun_p - 2.5 * D2R) / (5.2 - 2.5) / D2R
+        #     )
+        # else:
+        #     max_sun_roll = abs_max_sun_roll
 
-        max_sun_roll -= 0.1 * D2R  # Pad away from the edge
+        # HWOE-266 7/26 EJAS: For now the sun roll and sun pitch are independent. So max/min sun roll is always the same.
+        max_sun_roll = get_max_sun_roll()
+        
+        max_sun_roll -= get_sun_roll_pad()  # Pad away from the edge
 
         return max_sun_roll
 
@@ -216,7 +223,7 @@ class Ephemeris:
             Maximum allowed roll of spacecraft.
         """
         vehicle_pitch = np.pi / 2.0 - self.angular_sep(sun_ra, sun_dec, ra, dec)
-        sun_roll = 5.2 * D2R
+        sun_roll = get_max_sun_roll()
         last_sun_roll = 0.0
         while abs(sun_roll - last_sun_roll) > 0.0001 * D2R:
             last_sun_roll = sun_roll
@@ -430,7 +437,7 @@ class Ephemeris:
 
         # attempt to retrieve an ephemeris for a date too far in the future
         future_date = "9999-01-01"
-        request_url = URL.format(LAUNCH_DATE, future_date)
+        request_url = get_url().format(get_launch_date(), future_date)
 
         try:
             # this should return an error message containing the last good date
@@ -491,7 +498,7 @@ class Ephemeris:
         """
 
         try:
-            self.url = URL.format(
+            self.url = get_url().format(
                 start_date, end_date
             )  # Get Horizons url for JWST ephemeris and add user specified dates
             self.eph_request = requests.get(self.url)
@@ -594,7 +601,7 @@ class Ephemeris:
             Pandas dataframe with updated metadata
         """
         dataframe["in_FOR"] = np.where(
-            (dataframe["dist"] < MAX_SUN_ANGLE) & (dataframe["dist"] > MIN_SUN_ANGLE),
+            (dataframe["dist"] < get_max_sun_pitch()) & (dataframe["dist"] > get_min_sun_pitch()),
             True,
             False,
         )
@@ -747,7 +754,7 @@ class Ephemeris:
 
         max_date = self.ephemeris_maximum_date()
 
-        request_url = URL.format(LAUNCH_DATE, max_date)
+        request_url = get_url().format(get_launch_date(), max_date)
         self.ephemeris_request = requests.get(request_url)
 
         ephemeris = np.array(self.eph_request.text.splitlines())
