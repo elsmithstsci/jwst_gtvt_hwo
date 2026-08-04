@@ -10,7 +10,7 @@ PI2 = 2.0 * np.pi # 2 pi
 R2D = 180.0 / np.pi  # radians to degrees 
 UNIT_LIMIT = lambda x: min(max(-1.0,x),1.0)  # forces value to be in [-1,1]
 
-# HWOE-266 7/26 EJAS: The rest of this code parameterizes spacecraft-dependent constants.
+########### Parameterization of spacecraft-dependent constants ###########
 
 # Cache to store parameters dict.
 saved_parameters = False
@@ -34,20 +34,20 @@ def get_parameters_json():
     return saved_parameters
 
 def get_min_sun_pitch():
-    return get_parameters_json()["minSunPitch"]
+    return get_parameters_json()["minSunPitch"] * D2R
 
 def get_max_sun_pitch():
-    return get_parameters_json()["maxSunPitch"]
+    return get_parameters_json()["maxSunPitch"] * D2R
 
 def get_max_sun_roll():
-    return get_parameters_json()["maxSunRoll"]
+    return get_parameters_json()["maxSunRoll"] * D2R
 
 # Not used
 def get_sun_pitch_pad():
-    return get_parameters_json()["sunPitchPad"]
+    return get_parameters_json()["sunPitchPad"] * D2R
 
 def get_sun_roll_pad():
-    return get_parameters_json()["sunRollPad"]
+    return get_parameters_json()["sunRollPad"] * D2R
 
 def get_url():
     return get_parameters_json()["url"]

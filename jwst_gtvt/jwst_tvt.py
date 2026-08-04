@@ -40,26 +40,7 @@ import warnings
 
 warnings.filterwarnings('ignore', category=ErfaWarning)
 
-# HWOE-266 7/26 EJAS: Commented out
-# D2R = np.pi / 180.0  # degrees to radians
-# R2D = 180.0 / np.pi  # radians to degrees
-# unit_limit = lambda x: min(max(-1.0, x), 1.0)  # forces value to be in [-1,1]
-
-# LAUNCH_DATE = "2021-12-26"
-# MIN_SUN_ANGLE = 84.8 * D2R  # minimum Sun angle, in radians
-# MAX_SUN_ANGLE = 135.0 * D2R  # maximum Sun angle, in radians
-
-
-# SUN_ANGLE_PAD = (
-#     0.5 * D2R
-# )  # pad away from Sun angle limits when constructing safe attitude
-
-# obliquity_of_the_ecliptic = -23.439291  # At J2000 equinox
-# obliquity_of_the_ecliptic *= D2R
-# # Qecl2eci = QX(obliquity_of_the_ecliptic)
-
 NOW = Time.now()
-
 
 class Ephemeris:
     def __init__(self, start_date=NOW, end_date=NOW + 2 * u.year):
@@ -187,16 +168,6 @@ class Ephemeris:
 
     def allowed_max_sun_roll(self, sun_p):
         """Need Docstring"""
-        # abs_max_sun_roll = 5.2 * D2R
-
-        # if sun_p > 2.5 * D2R:
-        #     max_sun_roll = (
-        #         abs_max_sun_roll - 1.7 * D2R * (sun_p - 2.5 * D2R) / (5.2 - 2.5) / D2R
-        #     )
-        # else:
-        #     max_sun_roll = abs_max_sun_roll
-
-        # HWOE-266 7/26 EJAS: For now the sun roll and sun pitch are independent. So max/min sun roll is always the same.
         max_sun_roll = get_max_sun_roll()
         
         max_sun_roll -= get_sun_roll_pad()  # Pad away from the edge
