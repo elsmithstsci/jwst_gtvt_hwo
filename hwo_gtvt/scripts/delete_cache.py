@@ -3,7 +3,7 @@
 Utility functions for package
 """
 
-from jwst_gtvt.utils import delete_cache
+from hwo_gtvt.utils import delete_cache
 
 def driver():
     delete_cache()

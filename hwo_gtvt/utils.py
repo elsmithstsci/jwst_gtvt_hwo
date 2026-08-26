@@ -6,31 +6,31 @@ import astropy
 import os
 import shutil
 
-JWST_INSTRUMENTS = [
-    "nircam",
-    "niriss",
-    "nirspec",
-    "miri",
-    "fgs",
+HWO_INSTRUMENTS = [
+    # "nircam",
+    # "niriss",
+    # "nirspec",
+    # "miri",
+    # "fgs",
     "v3pa",
 ]
 
 
-def check_jwst_instrument_name(instrument_name):
-    """Validation check for JWST instrument names provided in CLI
+def check_hwo_instrument_name(instrument_name):
+    """Validation check for hwo instrument names provided in CLI
 
     Parameters
     ----------
     instrument_name : str
-        Name of JWST Instrument
+        Name of hwo Instrument
 
     Returns
     -------
     None
     """
-    if instrument_name.lower() not in JWST_INSTRUMENTS:
+    if instrument_name.lower() not in HWO_INSTRUMENTS:
         raise Exception(
-            f"Instrument '{instrument_name}' is not a valid JWST instrument! Valid instruments: {JWST_INSTRUMENTS}"
+            f"Instrument '{instrument_name}' is not a valid HWO instrument! Valid instruments: {HWO_INSTRUMENTS}"
         )
     else:
         return

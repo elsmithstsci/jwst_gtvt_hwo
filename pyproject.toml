@@ -1,6 +1,6 @@
 [project]
-name = "jwst_gtvt"
-description = "JWST General and Moving Target Visibility Tool"
+name = "hwo_gtvt"
+description = "HWO General and Moving Target Visibility Tool"
 readme = "README.md"
 authors = [
   { name = "Mees Fix" },
@@ -46,10 +46,10 @@ requires = ["setuptools >= 61.2",
 build-backend = 'setuptools.build_meta'
 
 [project.scripts]
-jwst_gtvt = "jwst_gtvt.scripts.jwst_gtvt:driver"
-jwst_mtvt = "jwst_gtvt.scripts.jwst_mtvt:driver"
-delete_cache = "jwst_gtvt.scripts.delete_cache:driver"
-create_ephemeris = "jwst_gtvt.scripts.create_new_ephemeris:driver"
+hwo_gtvt = "hwo_gtvt.scripts.hwo_gtvt:driver"
+hwo_mtvt = "hwo_gtvt.scripts.hwo_mtvt:driver"
+delete_cache = "hwo_gtvt.scripts.delete_cache:driver"
+create_ephemeris = "hwo_gtvt.scripts.create_new_ephemeris:driver"
 
 [tool.setuptools]
 include-package-data = true

@@ -8,17 +8,17 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from astropy.time import Time
 
-from jwst_gtvt.display_results import get_visibility_windows
-from jwst_gtvt.utils import JWST_INSTRUMENTS
+from hwo_gtvt.display_results import get_visibility_windows
+from hwo_gtvt.utils import HWO_INSTRUMENTS
 
 def plot_visibility(ephemeris, instrument=None, name=None, write_plot=None):
     """Make static visibility plot
     Parameters
     ----------
-    ephemeris : jwst_gtvt.jwst_tvt.ephemeris
+    ephemeris : hwo_gtvt.hwo_tvt.ephemeris
         Ephemeris class with fixed or moving target positions calculated.
     instrument : str
-        JWST instrument name
+        HWO instrument name
     name : str
         Target name (designation from Horizons)
     write_plot : str
@@ -88,7 +88,7 @@ def plot_visibility(ephemeris, instrument=None, name=None, write_plot=None):
         else:
             plt.suptitle("Target {}".format(ephemeris.target_name), fontsize=18)
 
-        for instrument_name, ax in zip(JWST_INSTRUMENTS, axs.flatten()):
+        for instrument_name, ax in zip(HWO_INSTRUMENTS, axs.flatten()):
             for start, end in window_indices:
                 data_to_plot = df.loc[start:end]
                 min_PA_data = data_to_plot[instrument_name.upper() + "_min_pa_angle"]
@@ -118,10 +118,10 @@ def plot_interactive_visibility(ephemeris, instrument=None, name=None, write_plo
 
     Parameters
     ----------
-    ephemeris : jwst_gtvt.jwst_tvt.ephemeris
+    ephemeris : hwo_gtvt.hwo_tvt.ephemeris
         Ephemeris class with fixed or moving target positions calculated.
     instrument : str
-        JWST instrument name
+        HWO instrument name
     name : str
         Target name (designation from Horizons)
     write_plot : str
@@ -134,7 +134,7 @@ def plot_interactive_visibility(ephemeris, instrument=None, name=None, write_plo
         Parameters
         ----------
         instrument : str
-            JWST instrument name
+            HWO instrument name
         height : int
             Height size of plot in px
         width : int
@@ -220,7 +220,7 @@ def plot_interactive_visibility(ephemeris, instrument=None, name=None, write_plo
             show(single_instrument_plot)
     else:
         plots = []
-        for instrument_name in JWST_INSTRUMENTS:
+        for instrument_name in HWO_INSTRUMENTS:
             plots.append(_make_plot(instrument_name, height=400, width=600, name=name))
         layout = gridplot(
             plots, ncols=3, merge_tools=False

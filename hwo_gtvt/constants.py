@@ -33,11 +33,11 @@ def get_parameters_json():
     
     return saved_parameters
 
-def get_min_sun_pitch():
-    return get_parameters_json()["minSunPitch"] * D2R
+def get_min_sun_angle():
+    return get_parameters_json()["minSunAngle"] * D2R
 
-def get_max_sun_pitch():
-    return get_parameters_json()["maxSunPitch"] * D2R
+def get_max_sun_angle():
+    return get_parameters_json()["maxSunAngle"] * D2R
 
 def get_max_sun_roll():
     return get_parameters_json()["maxSunRoll"] * D2R

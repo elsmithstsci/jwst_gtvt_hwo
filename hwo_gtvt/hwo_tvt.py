@@ -3,7 +3,7 @@
 """Generate visibility plots for GTVT/MTVT
 
 This script contains the main components that generate the dataframe
-containing information displayed in the figured created by the jwst_gtvt.
+containing information displayed in the figured created by the hwo_gtvt.
 
 
 Authors
@@ -17,11 +17,11 @@ Use
 ---
     This script is intended to be executed as such:
     ::
-        >>> from jwst_gtvt.ephemeride_rewrite import Ephemeris
+        >>> from hwo_gtvt.ephemeride_rewrite import Ephemeris
         >>> eph = Ephemeris()
 """
 
-from jwst_gtvt.constants import UNIT_LIMIT, D2R, R2D, get_min_sun_pitch, get_max_sun_pitch, get_max_sun_roll, get_sun_roll_pad, get_url, get_launch_date
+from hwo_gtvt.constants import UNIT_LIMIT, D2R, R2D, get_min_sun_angle, get_max_sun_angle, get_max_sun_roll, get_sun_roll_pad, get_url, get_launch_date
 
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
@@ -52,7 +52,7 @@ class Ephemeris:
         end_date : astropy.Time.time
             End time of observing, default is current date plus two years
         verbose : bool
-            Print jwst_gtvt results to screen
+            Print hwo_gtvt results to screen
         """
 
         # Using a code snippet writeen by Melanie Clarke to check the max date of the ephemeris.
@@ -246,9 +246,9 @@ class Ephemeris:
         dataframe : pandas.DataFrame
             Pandas dataframe containing metadata from tool
         instrument : str
-            JWST instrument name
+            HWO instrument name
         aperture : str
-            JWST instrument aperture name
+            HWO instrument aperture name
         angle_name : str
             pysiaf angle name [Default : V3IdlYAngle]
 
@@ -349,7 +349,7 @@ class Ephemeris:
         Returns
         -------
         df : pandas.DataFrame
-            JWST ephmeris as pandas dataframe
+            HWO ephmeris as pandas dataframe
         """
         try:
             start_index = np.where(ephemeris == "$$SOE")[0][0] + 1
@@ -358,8 +358,8 @@ class Ephemeris:
             # No positions returned
             idx_err_msg = (
                 "No position angles in field of regard! "
-                "Check constraints for your target and if it is observable with JWST. \n"
-                "Vist: https://jwst-docs.stsci.edu/jwst-observatory-characteristics/jwst-observatory-coordinate-system-and-field-of-regard for more information"
+                "Check constraints for your target and if it is observable with HWO. \n"
+                # "Vist: https://jwst-docs.stsci.edu/jwst-observatory-characteristics/jwst-observatory-coordinate-system-and-field-of-regard for more information"
             )
             raise IndexError(idx_err_msg)
 
@@ -404,7 +404,7 @@ class Ephemeris:
         return dataframe
 
     def ephemeris_maximum_date(self):
-        """Retrieve the last available date for JWST ephemerides."""
+        """Retrieve the last available date for HWO ephemerides."""
 
         # attempt to retrieve an ephemeris for a date too far in the future
         future_date = "9999-01-01"
@@ -431,7 +431,7 @@ class Ephemeris:
 
         Parameters
         ----------
-        instrument : JWST instrument of interest
+        instrument : HWO instrument of interest
             type : str
 
         aperture : instrument observing aperture
@@ -453,7 +453,7 @@ class Ephemeris:
         return angle
 
     def get_ephemeris_data(self, start_date=None, end_date=None):
-        """Read JWST data and make python object.
+        """Read HWO data and make python object.
 
         Parameters
         ----------
@@ -471,7 +471,7 @@ class Ephemeris:
         try:
             self.url = get_url().format(
                 start_date, end_date
-            )  # Get Horizons url for JWST ephemeris and add user specified dates
+            )  # Get Horizons url for HWO ephemeris and add user specified dates
             self.eph_request = requests.get(self.url)
             ephemeris = np.array(self.eph_request.text.splitlines())
         except Exception as e:
@@ -572,7 +572,7 @@ class Ephemeris:
             Pandas dataframe with updated metadata
         """
         dataframe["in_FOR"] = np.where(
-            (dataframe["dist"] < get_max_sun_pitch()) & (dataframe["dist"] > get_min_sun_pitch()),
+            (dataframe["dist"] < get_max_sun_angle()) & (dataframe["dist"] > get_min_sun_angle()),
             True,
             False,
         )
@@ -640,11 +640,11 @@ class Ephemeris:
         self.dataframe = self.get_allowed_max_boresight(self.dataframe)
 
         instrument_aperture_pairs = [
-            ("NIRCAM", "NRCALL_FULL"),
-            ("NIRSPEC", "NRS_FULL_MSA"),
-            ("NIRISS", "NIS_CEN"),
-            ("MIRI", "MIRIM_FULL"),
-            ("FGS", "FGS1_FULL"),
+            # ("NIRCAM", "NRCALL_FULL"),
+            # ("NIRSPEC", "NRS_FULL_MSA"),
+            # ("NIRISS", "NIS_CEN"),
+            # ("MIRI", "MIRIM_FULL"),
+            # ("FGS", "FGS1_FULL"),
             ("V3PA", None),
         ]
 
@@ -715,7 +715,7 @@ class Ephemeris:
         """
         if not write_path.endswith(".csv"):
             raise Exception(
-                "Writing out files JWST GTVT uses a csv writer, please provide filename with '.csv' extension."
+                "Writing out files HWO GTVT uses a csv writer, please provide filename with '.csv' extension."
             )
         else:
             data_frame.to_csv(write_path, index=False)

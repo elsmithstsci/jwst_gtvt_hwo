@@ -1,4 +1,4 @@
-from jwst_gtvt.jwst_tvt import Ephemeris
+from hwo_gtvt.hwo_tvt import Ephemeris
 
 
 def driver():

@@ -1,6 +1,6 @@
 {
-    "minSunPitch" : 45.0,
-    "maxSunPitch" : 135.0,
+    "minSunAngle" : 45.0,
+    "maxSunAngle" : 135.0,
     "maxSunRoll" : 22.5,
     "sunPitchPad" : 0.5,
     "sunRollPad" : 0.1,

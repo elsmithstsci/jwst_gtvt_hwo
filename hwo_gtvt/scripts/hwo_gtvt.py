@@ -1,9 +1,9 @@
 usage = """
 
-Driver for JWST GTVT fixed target tool.
+Driver for HWO GTVT fixed target tool.
 
 Usage:
-  jwst_gtvt --ra=<ra> --dec=<dec> [--start_date=<obs_start>] [--end_date=<obs_end>] [--instrument=<inst>] [--target_name=<name>] [--write_ephemeris=<write_path>] [--write_plot=<plot_path>] [--silent] [--interactive]
+  hwo_gtvt --ra=<ra> --dec=<dec> [--start_date=<obs_start>] [--end_date=<obs_end>] [--instrument=<inst>] [--target_name=<name>] [--write_ephemeris=<write_path>] [--write_plot=<plot_path>] [--silent] [--interactive]
 
 Arguments:
   --ra=<ra>     Right ascension of target in degrees
@@ -12,7 +12,7 @@ Arguments:
 Options:
   [--start_date]         Start date for plot (YYYY-MM-DD)
   [--end_date]           End date for plot (YYYY-MM-DD)
-  [--instrument]         Instrument (fgs, miri, nircam, niriss, nirspec, default=all)
+  [--instrument]         Instrument (only v3pa allowed for now, default=all)
   [--target_name]        User provided name for target (name for output, double-quoted if there are spaces)
   [--write_ephemeris]    File name to write ephemeris to
   [--write_plot]         File name to write plot out to
@@ -26,18 +26,18 @@ import os
 
 from astropy.time import Time
 
-from jwst_gtvt.constants import D2R
-from jwst_gtvt.display_results import display_results
+from hwo_gtvt.constants import D2R
+from hwo_gtvt.display_results import display_results
 from docopt import docopt
-from jwst_gtvt.jwst_tvt import Ephemeris
-from jwst_gtvt.plotting import plot_visibility, plot_interactive_visibility
-from jwst_gtvt.utils import check_jwst_instrument_name
+from hwo_gtvt.hwo_tvt import Ephemeris
+from hwo_gtvt.plotting import plot_visibility, plot_interactive_visibility
+from hwo_gtvt.utils import check_hwo_instrument_name
 
 
 def main(args):
-    # if instrument name provided, check that it is actually a JWST instrument
+    # if instrument name provided, check that it is actually a HWO instrument
     if args["--instrument"]:
-        check_jwst_instrument_name(args["--instrument"])
+        check_hwo_instrument_name(args["--instrument"])
 
     if args["--start_date"] and args["--end_date"]:
         start = Time(args["--start_date"])
@@ -54,8 +54,8 @@ def main(args):
     if not eph.dataframe["in_FOR"].any():
         in_FOR_msg = (
             "No position angles in field of regard! "
-            "Check constraints for your target and if it is observable with JWST. \n"
-            "Vist: https://jwst-docs.stsci.edu/jwst-observatory-characteristics-and-performance/jwst-target-viewing-constraints/jwst-field-of-regard-for#gsc.tab=0 for more information"
+            "Check constraints for your target and if it is observable with HWO. \n"
+            # "Vist: https://jwst-docs.stsci.edu/jwst-observatory-characteristics-and-performance/jwst-target-viewing-constraints/jwst-field-of-regard-for#gsc.tab=0 for more information"
         )
         raise IndexError(in_FOR_msg)
 

@@ -9,8 +9,8 @@ def display_results(ephemeris):
     """print out results to screen"""
 
     now = datetime.datetime.now()
-    gtvt_version = version("jwst_gtvt")
-    welcome_string = "JWST General Target Visibility Tool"
+    gtvt_version = version("hwo_gtvt")
+    welcome_string = "HWO General Target Visibility Tool"
     date_string = "Runtime/Date: {}".format(now)
     version_string = "Version Number: {}".format(gtvt_version)
 
@@ -20,16 +20,16 @@ def display_results(ephemeris):
 
     pa_columns = {
         "display_date": "Date",
-        "NIRCAM_max_pa_angle": "NRC Max PA",
-        "NIRCAM_min_pa_angle": "NRC Min PA",
-        "NIRSPEC_max_pa_angle": "NRS Max PA",
-        "NIRSPEC_min_pa_angle": "NRS Min PA",
-        "NIRISS_max_pa_angle": "NIS Max PA",
-        "NIRISS_min_pa_angle": "NIS Min PA",
-        "MIRI_max_pa_angle": "MIR Max PA",
-        "MIRI_min_pa_angle": "MIR Min PA",
-        "FGS_max_pa_angle": "FGS Max PA",
-        "FGS_min_pa_angle": "FGS Min PA",
+        # "NIRCAM_max_pa_angle": "NRC Max PA",
+        # "NIRCAM_min_pa_angle": "NRC Min PA",
+        # "NIRSPEC_max_pa_angle": "NRS Max PA",
+        # "NIRSPEC_min_pa_angle": "NRS Min PA",
+        # "NIRISS_max_pa_angle": "NIS Max PA",
+        # "NIRISS_min_pa_angle": "NIS Min PA",
+        # "MIRI_max_pa_angle": "MIR Max PA",
+        # "MIRI_min_pa_angle": "MIR Min PA",
+        # "FGS_max_pa_angle": "FGS Max PA",
+        # "FGS_min_pa_angle": "FGS Min PA",
         "V3PA_max_pa_angle": "V3 Max PA",
         "V3PA_min_pa_angle": "V3 Min PA",
     }
@@ -90,7 +90,7 @@ def display_results(ephemeris):
 
 def get_visibility_windows(df_indices):
     """Indices represent the spacing in positional measurements (1 day).
-    This function captures the indices of visible windows for JWST observers.
+    This function captures the indices of visible windows for HWO observers.
     """
 
     window_indices = []
