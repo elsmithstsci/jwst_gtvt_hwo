@@ -1,5 +1,6 @@
-from math import pi
+from math import pi, ceil
 
+import numpy as np
 from bokeh.io import output_file, save
 from bokeh.layouts import gridplot
 from bokeh.models import HoverTool, DatetimeTickFormatter
@@ -77,7 +78,10 @@ def plot_visibility(ephemeris, instrument=None, name=None, write_plot=None):
 
     else:
         # plot all instruments here.
-        fig, axs = plt.subplots(2, 3, figsize=(14, 8))
+        num_columns = min(len(HWO_INSTRUMENTS), 3)
+        num_rows = ceil(len(HWO_INSTRUMENTS)/num_columns)
+        fig, axs = plt.subplots(num_rows, num_columns, figsize=(14, 8))
+        axs = np.array([axs])
 
         if ephemeris.fixed:
             ra, dec = max(df["ra"]), max(df["dec"])
