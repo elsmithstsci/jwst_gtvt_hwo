@@ -44,7 +44,7 @@ def get_max_sun_roll():
 
 # Not used
 def get_sun_pitch_pad():
-    return get_parameters_json()["sunPitchPad"] * D2R
+    return get_parameters_json()["sunAnglePad"] * D2R
 
 def get_sun_roll_pad():
     return get_parameters_json()["sunRollPad"] * D2R
