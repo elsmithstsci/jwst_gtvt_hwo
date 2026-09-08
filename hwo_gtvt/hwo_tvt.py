@@ -114,10 +114,10 @@ class Ephemeris:
                 & (self.dataframe["MJD"] <= self.end_date_mjd)
             ].reset_index(drop=True)
 
-            #dksdebug
-            print("dksdebug before shift stuff")
+            #ephemdebug
+            print("ephemdebug before shift stuff")
             print(self.dataframe[["JDTDB","display_date", "X", "Y", "Z"]].head())
-            #dksdebug
+            #ephemdebug
 
             # Update positions based on pos() function
             for coordinate in ["X", "Y", "Z"]:
@@ -125,10 +125,10 @@ class Ephemeris:
                     self.dataframe[coordinate].shift() - self.dataframe[coordinate]
                 ) * 1 + self.dataframe[coordinate]
 
-            #dksdebug
-            print("dksdebug after shift stuff")
+            #ephemdebug
+            print("ephemdebug after shift stuff")
             print(self.dataframe[["JDTDB","display_date", "X", "Y", "Z"]].head())
-            #dksdebug
+            #ephemdebug
 
     def calculate_ecliptic_latitude(self, ra, dec):
         coord_eq = SkyCoord(ra=ra * u.degree, dec=dec * u.degree, frame="icrs")
@@ -484,12 +484,12 @@ class Ephemeris:
             )  # Get Horizons url for HWO ephemeris and add user specified dates
             self.eph_request = requests.get(self.url)
             ephemeris = np.array(self.eph_request.text.splitlines())
-            # dksdebug
-            raw_eph_file = "dks_raw_ephem.txt"
+            # ephemdebug
+            raw_eph_file = "raw_horizons_ephem.txt"
             with open(raw_eph_file, "w") as of:
                 of.write(self.eph_request.text)
-                print(f"dksdebug wrote raw ephemeris to {raw_eph_file}")
-            # dksdebug
+                print(f"ephemdebug wrote raw ephemeris to {raw_eph_file}")
+            # ephemdebug
         except Exception as e:
             print(
                 "Issue reading ephemeris from HORIZONS. Using local ephemeris {} Full traceback below:".format(
