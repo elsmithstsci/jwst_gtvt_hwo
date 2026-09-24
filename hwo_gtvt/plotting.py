@@ -1,6 +1,7 @@
 from math import pi, ceil
 
 import numpy as np
+import pandas as pd
 from bokeh.io import output_file, save
 from bokeh.layouts import gridplot
 from bokeh.models import HoverTool, DatetimeTickFormatter
@@ -11,6 +12,97 @@ from astropy.time import Time
 
 from hwo_gtvt.display_results import get_visibility_windows
 from hwo_gtvt.utils import HWO_INSTRUMENTS
+
+def get_plot_data_wrapped(data_to_plot, instrument):
+    min_pa_data = data_to_plot[instrument.upper() + "_min_pa_angle"]
+    max_pa_data = data_to_plot[instrument.upper() + "_max_pa_angle"]
+    
+    nominal_days = []
+    wrapping_days = []
+
+    for index, (min_pa, max_pa) in enumerate(zip(min_pa_data, max_pa_data)):
+        if min_pa > max_pa:
+            wrapping_days.append(index)
+        else:
+            nominal_days.append(index)
+
+    nominal_intervals = []
+    if nominal_days:
+        interval_start_index = nominal_days[0]
+        for day_1, day_2 in zip(nominal_days, nominal_days[1:]):
+            difference = day_2 - day_1
+            if difference > 1:
+                interval_end_index = day_1
+                nominal_intervals.append([interval_start_index, interval_end_index])
+                interval_start_index = day_2
+            if day_2 == nominal_days[-1]:
+                nominal_intervals.append([interval_start_index, day_2])
+            else:
+                continue
+
+        nominal_intervals = [i + [False] for i in nominal_intervals]
+
+    wrapping_intervals = []
+    if wrapping_days:
+        interval_start_index = wrapping_days[0]
+        for day_1, day_2 in zip(wrapping_days, wrapping_days[1:]):
+            difference = day_2 - day_1
+            if difference > 1:
+                interval_end_index = day_1
+                wrapping_intervals.append([interval_start_index, interval_end_index])
+                interval_start_index = day_2
+            if day_2 == wrapping_days[-1]:
+                wrapping_intervals.append([interval_start_index, day_2])
+            else:
+                continue
+
+        wrapping_intervals = [i + [True] for i in wrapping_intervals]
+
+    all_intervals = nominal_intervals + wrapping_intervals
+    all_intervals.sort(key = lambda i: i[0])
+
+    plotting_data = []
+
+    for start, end, wrapping in all_intervals:
+        subset = data_to_plot.iloc[start:end + 1]
+        times_subset = subset["times"]
+        min_pa_data_subset = subset[instrument.upper() + "_min_pa_angle"]
+        max_pa_data_subset = subset[instrument.upper() + "_max_pa_angle"]
+
+        plotting_data.append([times_subset, min_pa_data_subset, max_pa_data_subset, wrapping])
+
+    adjusted_plotting_data = []
+    for index, (times_subset, min_pa_data_subset, max_pa_data_subset, wrapping) in enumerate(plotting_data):
+        next_times_subset, next_min_pa_data_subset, next_max_pa_data_subset, next_wrapping = [None, None, None, None]
+        if index < len(plotting_data) - 1:
+            next_times_subset, next_min_pa_data_subset, next_max_pa_data_subset, next_wrapping = plotting_data[index + 1]
+        
+        new_times_subset = times_subset
+        new_min_pa_data_subset = min_pa_data_subset
+        new_max_pa_data_subset = max_pa_data_subset
+
+        # Fill the gap between the wrapping and non wrapping areas
+        # This is not perfect around the edges but oh well
+        if (not wrapping) and next_wrapping: # Wrapping
+            new_times_subset = pd.concat([times_subset, pd.Series([next_times_subset.iloc[0]])], ignore_index=True)
+            if next_max_pa_data_subset.iloc[0] > next_max_pa_data_subset.iloc[-1]: # Wrapping downward
+                new_min_pa_data_subset = pd.concat([min_pa_data_subset, pd.Series([0])], ignore_index=True)
+                new_max_pa_data_subset = pd.concat([max_pa_data_subset, pd.Series([next_max_pa_data_subset.iloc[0]])], ignore_index=True)
+            else:
+                new_min_pa_data_subset = pd.concat([min_pa_data_subset, pd.Series([next_min_pa_data_subset.iloc[0]])], ignore_index=True)
+                new_max_pa_data_subset = pd.concat([max_pa_data_subset, pd.Series([360])], ignore_index=True)
+        elif wrapping and (next_times_subset is not None) and (not next_wrapping): # Unwrapping
+            new_times_subset = pd.concat([times_subset, pd.Series([next_times_subset.iloc[0]])], ignore_index=True)
+            if next_max_pa_data_subset.iloc[0] > next_max_pa_data_subset.iloc[-1]: # Unwrapping downward
+                new_min_pa_data_subset = pd.concat([min_pa_data_subset, pd.Series([next_min_pa_data_subset.iloc[0]])], ignore_index=True)
+                new_max_pa_data_subset = pd.concat([max_pa_data_subset, pd.Series([0])], ignore_index=True)
+            else:
+                new_min_pa_data_subset = pd.concat([min_pa_data_subset, pd.Series([360])], ignore_index=True)
+                new_max_pa_data_subset = pd.concat([max_pa_data_subset, pd.Series([next_max_pa_data_subset.iloc[0]])], ignore_index=True)
+
+        adjusted_plotting_data.append([new_times_subset, new_min_pa_data_subset, new_max_pa_data_subset, wrapping])
+
+    return adjusted_plotting_data
 
 def plot_visibility(ephemeris, instrument=None, name=None, write_plot=None):
     """Make static visibility plot
@@ -42,11 +134,22 @@ def plot_visibility(ephemeris, instrument=None, name=None, write_plot=None):
 
         for start, end in window_indices:
             data_to_plot = df.loc[start:end]
-            min_PA_data = data_to_plot[instrument.upper() + "_min_pa_angle"]
-            max_PA_data = data_to_plot[instrument.upper() + "_max_pa_angle"]
-            plt.fill_between(
-                data_to_plot["times"], min_PA_data, max_PA_data, color="grey"
-            )
+
+            wrapping_intervals = get_plot_data_wrapped(data_to_plot, instrument)
+
+            for times, min_pa_data, max_pa_data, wrapping in wrapping_intervals:
+                if wrapping:
+                    plt.fill_between(
+                        times, min_pa_data, 360, color="grey"
+                    )
+                    plt.fill_between(
+                        times, 0, max_pa_data, color="grey"
+                    )
+                else:
+                    plt.fill_between(
+                        times, min_pa_data, max_pa_data, color="grey"
+                    )
+
             plt.fmt_xdata = DateFormatter("%Y-%m-%d")
 
         if instrument.lower() == "v3pa":
@@ -95,11 +198,22 @@ def plot_visibility(ephemeris, instrument=None, name=None, write_plot=None):
         for instrument_name, ax in zip(HWO_INSTRUMENTS, axs.flatten()):
             for start, end in window_indices:
                 data_to_plot = df.loc[start:end]
-                min_PA_data = data_to_plot[instrument_name.upper() + "_min_pa_angle"]
-                max_PA_data = data_to_plot[instrument_name.upper() + "_max_pa_angle"]
-                ax.fill_between(
-                    data_to_plot["times"], min_PA_data, max_PA_data, color="grey"
-                )
+
+                wrapping_intervals = get_plot_data_wrapped(data_to_plot, instrument_name)
+
+                for times, min_pa_data, max_pa_data, wrapping in wrapping_intervals:
+                    if wrapping:
+                        ax.fill_between(
+                            times, min_pa_data, 360, color="grey"
+                        )
+                        ax.fill_between(
+                            times, 0, max_pa_data, color="grey"
+                        )
+                    else:
+                        ax.fill_between(
+                            times, min_pa_data, max_pa_data, color="grey"
+                        )
+
                 ax.fmt_xdata = DateFormatter("%Y-%m-%d")
                 ax.set_title(instrument_name.upper())
                 ax.tick_params("x", labelrotation=45)

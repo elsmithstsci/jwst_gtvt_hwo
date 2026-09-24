@@ -3,13 +3,11 @@ usage = """
 Driver for HWO GTVT fixed target tool.
 
 Usage:
-  hwo_gtvt --ra=<ra> --dec=<dec> [--start_date=<obs_start>] [--end_date=<obs_end>] [--instrument=<inst>] [--target_name=<name>] [--write_ephemeris=<write_path>] [--write_plot=<plot_path>] [--silent] [--interactive]
-
-Arguments:
-  --ra=<ra>     Right ascension of target in degrees
-  --dec=<dec>   Declination of target in degrees
+  hwo_gtvt [--ra=<ra>] [--dec=<dec>] [--start_date=<obs_start>] [--end_date=<obs_end>] [--instrument=<inst>] [--target_name=<name>] [--write_ephemeris=<write_path>] [--write_plot=<plot_path>] [--silent] [--interactive] [--gui]
 
 Options:
+  [--ra=<ra>]            Right ascension of target in degrees
+  [--dec=<dec>]          Declination of target in degrees
   [--start_date]         Start date for plot (YYYY-MM-DD)
   [--end_date]           End date for plot (YYYY-MM-DD)
   [--instrument]         Instrument (only v3pa allowed for now, default=all)
@@ -18,6 +16,7 @@ Options:
   [--write_plot]         File name to write plot out to
   [--silent]             Boolean to print results to screen [default: False]
   [--interactive]        Option to display interactive plot
+  [--gui]                Open plot generatation GUI
   --help                 Show this screen.
   --version              Show version.
 """
@@ -32,9 +31,17 @@ from docopt import docopt
 from hwo_gtvt.hwo_tvt import Ephemeris
 from hwo_gtvt.plotting import plot_visibility, plot_interactive_visibility
 from hwo_gtvt.utils import check_hwo_instrument_name
+from hwo_gtvt.gui import launch_gtvt_gui
 
 
 def main(args):
+    if args["--gui"]:
+        launch_gtvt_gui()
+        return
+    
+    if (not args["--ra"]) or (not args["--dec"]):
+        raise Exception("--ra and --dec must be specified when not using the plot generation GUI.")
+
     # if instrument name provided, check that it is actually a HWO instrument
     if args["--instrument"]:
         check_hwo_instrument_name(args["--instrument"])
