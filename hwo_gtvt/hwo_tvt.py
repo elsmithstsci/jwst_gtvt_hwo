@@ -114,21 +114,7 @@ class Ephemeris:
                 & (self.dataframe["MJD"] <= self.end_date_mjd)
             ].reset_index(drop=True)
 
-            #ephemdebug
-            print("ephemdebug before shift stuff")
-            print(self.dataframe[["JDTDB","display_date", "X", "Y", "Z"]].head())
-            #ephemdebug
-
-            # Update positions based on pos() function
-            for coordinate in ["X", "Y", "Z"]:
-                self.dataframe[coordinate] = (
-                    self.dataframe[coordinate].shift() - self.dataframe[coordinate]
-                ) * 1 + self.dataframe[coordinate]
-
-            #ephemdebug
-            print("ephemdebug after shift stuff")
-            print(self.dataframe[["JDTDB","display_date", "X", "Y", "Z"]].head())
-            #ephemdebug
+        return
 
     def calculate_ecliptic_latitude(self, ra, dec):
         coord_eq = SkyCoord(ra=ra * u.degree, dec=dec * u.degree, frame="icrs")
