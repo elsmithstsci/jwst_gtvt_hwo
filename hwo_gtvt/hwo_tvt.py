@@ -470,12 +470,6 @@ class Ephemeris:
             )  # Get Horizons url for HWO ephemeris and add user specified dates
             self.eph_request = requests.get(self.url)
             ephemeris = np.array(self.eph_request.text.splitlines())
-            # ephemdebug
-            raw_eph_file = "raw_horizons_ephem.txt"
-            with open(raw_eph_file, "w") as of:
-                of.write(self.eph_request.text)
-                print(f"ephemdebug wrote raw ephemeris to {raw_eph_file}")
-            # ephemdebug
         except Exception as e:
             print(
                 "Issue reading ephemeris from HORIZONS. Using local ephemeris {} Full traceback below:".format(
